@@ -8,7 +8,7 @@ kafka学习笔记
 
 ### 1.1 架构
 
-![image-20231118110048560](C:\Users\19406\AppData\Roaming\Typora\typora-user-images\image-20231118110048560.png)
+![image-20231118110048560](image/messagequeue-1.png)
 
 只要是用队列的形式将消息临时存储起来，然后一边写，一边读，就可以看做是个消息队列。写入的一方我们成为**生产者**，读取的一端我们成为**消费者**。
 
@@ -69,7 +69,7 @@ Push模式就比较粗暴了，和发短信一样，直接消息队列推送，�
 >- 通过消息分区，分布式消费，使得扩容很简单，同时多副本保障了可用性。
 >- 具有消息压缩功能，极大节省了带宽。（消息队列的瓶颈绝对在带宽上，而不是硬盘、CPU或者内存上。）
 
-![](C:\Users\19406\Desktop\学习资料\kafka-1.png)
+![](image/kafka-1.png)
 
 一个典型的 Kafka 体系架构包括若干 Producer、若干 Broker、若干 Consumer，以及一个ZooKeeper 集群，其中ZooKeeper 是 Kafka 用来负责集群元数据的管理、控制器的选举等操作的。Producer 将消息发送到 Broker，Broker 负责将收到的消息存储到磁盘中，而 Consumer 负责从 Broker 订阅并消费消息。
 
@@ -87,7 +87,7 @@ Kafka 中的消息以 topic 为单位进行归类，producer负责将消息发�
 
 <u>一个topic可以细分为多个分区， 一个分区只属于单个topic</u>，partition 也称 **Topic-Partition** 。主题下的每条消息只会保存在某一个分区中，而不会在多个分区中被保存多份。同一topic下不同分区包含的消息是不同的，分区在存储层面可以看作一个可追加的日志（Log）文件，消息在被追加到分区日志文件的时候都会分配一个特定的偏移量（offset）。**offset** 是消息在分区中的唯一标识，Kafka 通过它来保证消息在分区内的顺序性，不过 offset 并不跨越分区，也就是说，Kafka 保证的是分区有序而不是主题有序。
 
-![](C:\Users\19406\Desktop\学习资料\kafka-2.png)
+![](image/kafka-2.png)
 
 如上图所示，主题中有 3 个分区，消息被顺序追加到每个分区日志文件的尾部。
 
@@ -97,7 +97,7 @@ Kafka 中的分区可以分布在不同的服务器（broker）上，也就是�
 
 ## 四、Consumer And Consumer Group
 
-![](C:\Users\19406\Desktop\学习资料\kafka-3.png)
+![](image/kafka-3.png)
 
 每个消费者都有一个对应的消费组。当消息发布到主题后，只会被投递给订阅它的每个消费组中的一个消费者。
 
@@ -105,7 +105,7 @@ Kafka 中的分区可以分布在不同的服务器（broker）上，也就是�
 
 ## 五、存储视图
 
-![](C:\Users\19406\Desktop\学习资料\kafka-4.png)
+![](image/kafka-4.png)
 
 主题和分区都是提供给上层用户的抽象，而在副本层面或更加确切地说是 Log 层面才有实际物理上的存在。同一个分区中的多个副本必须分布在不同的 broker 中，这样才能提供有效的数据冗余。
 
@@ -115,7 +115,7 @@ Kafka 中的分区可以分布在不同的服务器（broker）上，也就是�
 
 Kafka 为分区引入了多副本（Replica）机制，通过增加副本数量可以提升容灾能力。同一partition的不同replica中保存的是相同的消息（在同一时刻，副本之间并非完全一样），replica之间是一主多从的关系，其中 **leader 副本负责处理读写请求**，**follower 副本只负责与 leader 副本的消息同步**。副本处于不同的 broker 中，当 leader 副本出现故障时，从 follower 副本中重新选举新的 leader 副本对外提供服务。Kafka 通过多副本机制实现了故障的自动转移，当 Kafka 集群中某个 broker 失效时仍然能保证服务可用。
 
-![image-20231118113139242](C:\Users\19406\AppData\Roaming\Typora\typora-user-images\image-20231118113139242.png)
+![image-20231118113139242](image/kafka-11.png)
 
 副本自身是没有专门的编号的，副本在哪个 Broker 上，对应的 Broker ID 就是它的编号（这里也间接限制了副本数量的最大值必须小于 Broker 节点数量）
 
@@ -125,7 +125,7 @@ Kafka 为分区引入了多副本（Replica）机制，通过增加副本数量�
 
 leader 副本负责维护和跟踪 ISR 集合中所有 follower 副本的滞后状态，当 follower 副本落后太多或失效时，leader 副本会把它从 ISR 集合中剔除。如果 OSR 集合中有 follower 副本“追上” 了leader 副本，那么 leader 副本会把它从 OSR 集合转移至 ISR 集合。<u>默认情况下，当 leader 副本发生故障时，只有在 ISR 集合中的副本才有资格被选举为新的 leader，而在 OSR 集合中的副本则没有任何机会</u>(不过这个原则也可以通过修改相应的参数配置来改变)。
 
-![](C:\Users\19406\Desktop\学习资料\kafka-7.png)
+![](image/kafka-7.png)
 
 ISR 与 HW 和 LEO 也有紧密的关系。**HW** 是 High Watermark 的缩写，俗称高水位，它标识 了一个特定的消息偏移量(offset)，消费者只能拉取到这个 offset 之前的消息。
 
@@ -151,11 +151,11 @@ ISR 与 HW 和 LEO 也有紧密的关系。**HW** 是 High Watermark 的缩写�
 
 对于 acks = 1 的配置，生产者将消息发送到 leader 副本，leader 副本在成功写入本地日志之 后会告知生产者已经成功提交
 
-![](C:\Users\19406\Desktop\学习资料\kafka-8.png)
+![](image/kafka-8.png)
 
 对于 ack = -1 的配置，生产者将消息发送到 leader 副本，leader 副本在成功写入本地日志之 后还要等待 ISR 中的 follower 副本全部同步完成才能够告知生产者已经成功提交，即使此时 leader 副本宕机，消息也不会丢失，如图所示。
 
-![](C:\Users\19406\Desktop\学习资料\kafka-9.png)
+![](image/kafka-9.png)
 
 消息发送有 3 种模式，即**发后即忘、同步和异步**。对于发后即忘的模式，不管消息有没有被成功写入，生产者都不会收到通知，那么即使消息写入失败也无从 得知，因此<u>发后即忘的模式不适合高可靠性要求的场景</u>。如果要提升可靠性，那么生产者可以 采用同步或异步的模式，在出现异常情况时可以及时获得通知，以便可以做相应的补救措施， 比如选择重试发送(可能会引起消息重复)。
 
