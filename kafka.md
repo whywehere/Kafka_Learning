@@ -1,6 +1,6 @@
 # :heart: Kafka Learning
 
-kafka学习笔记
+>  kafka学习笔记
 
 ## 一、消息队列
 
@@ -73,13 +73,13 @@ Push模式就比较粗暴了，和发短信一样，直接消息队列推送，�
 
 一个典型的 Kafka 体系架构包括若干 Producer、若干 Broker、若干 Consumer，以及一个ZooKeeper 集群，其中ZooKeeper 是 Kafka 用来负责集群元数据的管理、控制器的选举等操作的。Producer 将消息发送到 Broker，Broker 负责将收到的消息存储到磁盘中，而 Consumer 负责从 Broker 订阅并消费消息。
 
-整个 Kafka 体系结构中引入了以下 3 个术语。
-
-- **Producer：生产者**，也就是发送消息的一方。生产者负责创建消息，然后将其投递到 Kafka 中。
-
-- **Consumer：消费者**，也就是接收消息的一方。消费者连接到 Kafka 上并接收消息，进 而进行相应的业务逻辑处理。
-
-- **Broker：服务代理节点**，Broker 可以简单地看作一个独立的 Kafka 服务节点或 Kafka 服务实例。大多数情况下也可以将 Broker 看作一台 Kafka 服务器，前提是这台服务器上只部署了一个 Kafka 实例。一个或多个 Broker 组成了一个 Kafka 集群。一般而言， 我们更习惯使用首字母小写的 broker 来表示服务代理节点。
+>整个 Kafka 体系结构中引入了以下 3 个术语。
+>
+>- **Producer：生产者**，也就是发送消息的一方。生产者负责创建消息，然后将其投递到 Kafka 中。
+>
+>- **Consumer：消费者**，也就是接收消息的一方。消费者连接到 Kafka 上并接收消息，进 而进行相应的业务逻辑处理。
+>
+>- **Broker：服务代理节点**，Broker 可以简单地看作一个独立的 Kafka 服务节点或 Kafka 服务实例。大多数情况下也可以将 Broker 看作一台 Kafka 服务器，前提是这台服务器上只部署了一个 Kafka 实例。一个或多个 Broker 组成了一个 Kafka 集群。一般而言， 我们更习惯使用首字母小写的 broker 来表示服务代理节点。
 
 ## 三、Topic、Partition
 
@@ -89,7 +89,7 @@ Kafka 中的消息以 topic 为单位进行归类，producer负责将消息发�
 
 ![](image/kafka-2.png)
 
-如上图所示，主题中有 3 个分区，消息被顺序追加到每个分区日志文件的尾部。
+> 如上图所示，主题中有 3 个分区，消息被顺序追加到每个分区日志文件的尾部。
 
 Kafka 中的分区可以分布在不同的服务器（broker）上，也就是说，一个主题可以横跨多个 broker，以此来提供比单个 broker 更强大的性能。
 
@@ -99,7 +99,7 @@ Kafka 中的分区可以分布在不同的服务器（broker）上，也就是�
 
 ![](image/kafka-3.png)
 
-每个消费者都有一个对应的消费组。当消息发布到主题后，只会被投递给订阅它的每个消费组中的一个消费者。
+> 每个消费者都有一个对应的消费组。当消息发布到主题后，只会被投递给订阅它的每个消费组中的一个消费者。
 
 如上图所示，某个主题中共有 4 个分区（Partition）: P0、P1、P2、P3。有两个消费组 A 和 B 都订阅了这个主题，消费组 A 中有 4 个消费者（C0、C1、C2 和 C3），消费组 B 中有 2 个消费者（C4 和 C5）。按照 Kafka 默认的规则，最后的分配结果是消费组 A 中的每一个消费者分配到 1 个分区，消费组 B 中的每一个消费者分配到 2 个分区，两个消费组之间互不影响。 每个消费者只能消费所分配到的分区中的消息。换言之，每一个分区只能被一个消费组中的一 个消费者所消费。
 
@@ -117,7 +117,7 @@ Kafka 为分区引入了多副本（Replica）机制，通过增加副本数量�
 
 ![image-20231118113139242](image/kafka-11.png)
 
-副本自身是没有专门的编号的，副本在哪个 Broker 上，对应的 Broker ID 就是它的编号（这里也间接限制了副本数量的最大值必须小于 Broker 节点数量）
+> 副本自身是没有专门的编号的，副本在哪个 Broker 上，对应的 Broker ID 就是它的编号（这里也间接限制了副本数量的最大值必须小于 Broker 节点数量）
 
 分区中的所有副本统称为 **AR** **(Assigned Replicas)** 。所有与 leader 副本保持一定程度同步的副本(包括 leader 副本在内)组成 **ISR (In-Sync Replicas)** ，ISR 集合是 AR 集合中的一个子 集。消息会先发送到 leader 副本，然后 follower 副本才能从 leader 副本中拉取消息进行同步， 同步期间内 follower 副本相对于 leader 副本而言会有一定程度的滞后。
 
@@ -141,7 +141,6 @@ ISR 与 HW 和 LEO 也有紧密的关系。**HW** 是 High Watermark 的缩写�
 >- 如果我们分成两个partition，假设topic的数据是123456， 采用随机分配的策略，partition1上的可能是135,2上面是246,消费者A读取1，B读取2，这样就不会重复消费了，但是如果A的速度很快，可能A都到5了，B的2还没读完。这就导致了乱序消费。
 >- 很简单，在上面的方案中，我们将随机分配改成哈希分配，从业务层将一个业务逻辑的消息发送到同一个partition上，比如用户ID。如果你的运气足够不好，可能会出现一个partition消息多，另一个少的情况。
 >
->
 
 ## 七、消息可靠性分析
 
@@ -157,7 +156,13 @@ ISR 与 HW 和 LEO 也有紧密的关系。**HW** 是 High Watermark 的缩写�
 
 ![](image/kafka-9.png)
 
-消息发送有 3 种模式，即**发后即忘、同步和异步**。对于发后即忘的模式，不管消息有没有被成功写入，生产者都不会收到通知，那么即使消息写入失败也无从 得知，因此<u>发后即忘的模式不适合高可靠性要求的场景</u>。如果要提升可靠性，那么生产者可以 采用同步或异步的模式，在出现异常情况时可以及时获得通知，以便可以做相应的补救措施， 比如选择重试发送(可能会引起消息重复)。
+> 消息发送有 3 种模式，即**发后即忘、同步和异步**。
+>
+> 
+>
+> 对于发后即忘的模式，不管消息有没有被成功写入，生产者都不会收到通知，那么即使消息写入失败也无从 得知，因此<u>发后即忘的模式不适合高可靠性要求的场景</u>。
+>
+> 如果要提升可靠性，那么生产者可以 采用同步或异步的模式，在出现异常情况时可以及时获得通知，以便可以做相应的补救措施， 比如选择重试发送(可能会引起消息重复)。
 
 ## 八、Golang + Kafka
 
@@ -266,583 +271,7 @@ func Producer(topic string, limit int) {
 }
 ```
 
-#### 发送流程源码分析
-
-> 为了便于阅读，省略了部分无关代码。
-
-另外：由于同步生产者和异步生产者逻辑是一致的，只是在异步生产者基础上封装了一层，所以本文主要分析了异步生产者。
-
-```go
-// 可以看到 同步生产者其实就是把异步生产者封装了一层
-type syncProducer struct {
-    producer *asyncProducer
-    wg       sync.WaitGroup
-}
-```
-
->   **NewAsyncProducer**
-
-首先是构建一个异步生产者对象
-
-```go
-func NewAsyncProducer(addrs []string, conf *Config) (AsyncProducer, error) {
-	client, err := NewClient(addrs, conf)
-	if err != nil {
-		return nil, err
-	}
-	return newAsyncProducer(client)
-}
-
-func newAsyncProducer(client Client) (AsyncProducer, error) {
-	// ...
-	p := &asyncProducer{
-		client:     client,
-		conf:       client.Config(),
-		errors:     make(chan *ProducerError),
-		input:      make(chan *ProducerMessage),
-		successes:  make(chan *ProducerMessage),
-		retries:    make(chan *ProducerMessage),
-		brokers:    make(map[*Broker]*brokerProducer),
-		brokerRefs: make(map[*brokerProducer]int),
-		txnmgr:     txnmgr,
-	}
-
-	go withRecover(p.dispatcher)
-	go withRecover(p.retryHandler)
-}
-```
-
-可以看到在 `newAsyncProducer` 最后开启了两个 goroutine，一个为 `dispatcher`，一个为 `retryHandler`。retryHandler 主要是处理重试逻辑，暂时先忽略。
-
->  **dispatcher**
-
-主要根据 `topic` 将消息分发到对应的 channel。
-
-```go
-func (p *asyncProducer) dispatcher() {
-   handlers := make(map[string]chan<- *ProducerMessage)
-   // ...
-   for msg := range p.input {
-       
-	  // 拦截器逻辑
-      for _, interceptor := range p.conf.Producer.Interceptors {
-         msg.safelyApplyInterceptor(interceptor)
-      }
-	  // 找到这个Topic对应的Handler
-      handler := handlers[msg.Topic]
-      if handler == nil {
-         // 如果没有这个Topic对应的Handler，那么创建一个
-         handler = p.newTopicProducer(msg.Topic)
-         handlers[msg.Topic] = handler
-      }
-	  // 然后把这条消息写进这个Handler中
-      handler <- msg
-   }
-}
-```
-
-具体逻辑：从 `p.input` 中取出消息并写入到 `handler` 中，如果 `topic` 对应的 `handler` 不存在，则调用 `newTopicProducer()` 创建。
-
-> 这里的 handler 是一个 buffered channel
-
-然后让我们来看下`handler = p.newTopicProducer(msg.Topic)`这一行的代码。
-
-```go
-func (p *asyncProducer) newTopicProducer(topic string) chan<- *ProducerMessage {
-   input := make(chan *ProducerMessage, p.conf.ChannelBufferSize)
-   tp := &topicProducer{
-      parent:      p,
-      topic:       topic,
-      input:       input,
-      breaker:     breaker.New(3, 1, 10*time.Second),
-      handlers:    make(map[int32]chan<- *ProducerMessage),
-      partitioner: p.conf.Producer.Partitioner(topic),
-   }
-   go withRecover(tp.dispatch)
-   return input
-}
-```
-
-在这里创建了一个缓冲大小为`ChannelBufferSize`的channel，用于存放发送到这个主题的消息，然后创建了一个 `topicProducer`。
-
-> 在这个时候你可以认为消息已经交付给各个 topic 对应的 topicProducer 了。
-
-还有一个需要注意的是`newTopicProducer` 的这种写法，内部创建一个 chan 返回到外层，然后通过在内部新开一个 goroutine 来处理该 chan 里的消息，这种写法在后面还会遇到好几次。
-
-> 相比之下在外部显示创建 chan 之后传递到该函数可能会更容易理解。
-
- **topicDispatch**
-
-`newTopicProducer`的最后一行`go withRecover(tp.dispatch)`又启动了一个 goroutine 用于处理消息。也就是说，到了这一步，对于每一个Topic，都有一个协程来处理消息。
-
-dispatch 具体如下：
-
-```go
-func (tp *topicProducer) dispatch() {
-	for msg := range tp.input {
-		handler := tp.handlers[msg.Partition]
-		if handler == nil {
-			handler = tp.parent.newPartitionProducer(msg.Topic, msg.Partition)
-			tp.handlers[msg.Partition] = handler
-		}
-
-		handler <- msg
-	}
-}
-```
-
-可以看到又是同样的套路：
-
-- 1）找到这条消息所在的分区对应的 channel，然后把消息丢进去
-- 2）如果不存在则新建 chan
-
-##### PartitionDispatch
-
-新建的 chan 是通过 `newPartitionProducer` 返回的，和之前的`newTopicProducer`又是同样的套路,点进去看一下：
-
-```go
-func (p *asyncProducer) newPartitionProducer(topic string, partition int32) chan<- *ProducerMessage {
-	input := make(chan *ProducerMessage, p.conf.ChannelBufferSize)
-	pp := &partitionProducer{
-		parent:    p,
-		topic:     topic,
-		partition: partition,
-		input:     input,
-
-		breaker:    breaker.New(3, 1, 10*time.Second),
-		retryState: make([]partitionRetryState, p.conf.Producer.Retry.Max+1),
-	}
-	go withRecover(pp.dispatch)
-	return input
-}
-```
-
-> 果然是这样，有没有一种似曾相识的感觉。
-
-`TopicProducer`是按照 `Topic` 进行分发，这里的 `PartitionProducer` 则是按照 `partition` 进行分发。
-
-> 到这里可以认为消息已经交付给对应 topic 下的对应 partition 了。
-
-每个 partition 都会有一个 goroutine 来处理分发给自己的消息。
-
-##### PartitionProducer
-
-到了这一步，我们再来看看消息到了每个 partition 所在的 channel 之后，是如何处理的。
-
-> 其实在这一步中，主要是做一些错误处理之类的，然后把消息丢进brokerProducer。
-
-可以理解为这一步是业务逻辑层到网络IO层的转变，在这之前我们只关心消息去到了哪个分区，而在这之后，我们需要找到这个分区所在的 broker 的地址，并使用之前已经建立好的 TCP 连接，发送这条消息。
-
-具体 `pp.dispatch` 代码如下
-
-```go
-func (pp *partitionProducer) dispatch() {
-	// 找到这个主题和分区的leader所在的broker
-	pp.leader, _ = pp.parent.client.Leader(pp.topic, pp.partition)
-	if pp.leader != nil {
-        // 根据 leader 信息创建一个 BrokerProducer 对象
-		pp.brokerProducer = pp.parent.getBrokerProducer(pp.leader)
-		pp.parent.inFlight.Add(1) 
-		pp.brokerProducer.input <- &ProducerMessage{Topic: pp.topic, Partition: pp.partition, flags: syn}
-	}
-	// 然后把消息丢进brokerProducer中
-	for msg := range pp.input {
-		pp.brokerProducer.input <- msg
-	}
-}
-```
-
-> 根据之前的套路我们知道，真正的逻辑肯定在`pp.parent.getBrokerProducer(pp.leader)` 这个方法里面。
-
-##### BrokerProducer
-
-到了这里，大概算是整个发送流程最后的一个步骤了。
-
-让我们继续跟进`pp.parent.getBrokerProducer(pp.leader)`这行代码里面的内容。其实就是找到`asyncProducer`中的`brokerProducer`，如果不存在，则创建一个。
-
-```go
-func (p *asyncProducer) getBrokerProducer(broker *Broker) *brokerProducer {
-	p.brokerLock.Lock()
-	defer p.brokerLock.Unlock()
-
-	bp := p.brokers[broker]
-
-	if bp == nil {
-		bp = p.newBrokerProducer(broker)
-		p.brokers[broker] = bp
-		p.brokerRefs[bp] = 0
-	}
-
-	p.brokerRefs[bp]++
-
-	return bp
-}
-```
-
-又调用了`newBrokerProducer()`，继续追踪下去：
-
-```go
-func (p *asyncProducer) newBrokerProducer(broker *Broker) *brokerProducer {
-	var (
-		input     = make(chan *ProducerMessage)
-		bridge    = make(chan *produceSet)
-		responses = make(chan *brokerProducerResponse)
-	)
-
-	bp := &brokerProducer{
-		parent:         p,
-		broker:         broker,
-		input:          input,
-		output:         bridge,
-		responses:      responses,
-		stopchan:       make(chan struct{}),
-		buffer:         newProduceSet(p),
-		currentRetries: make(map[string]map[int32]error),
-	}
-	go withRecover(bp.run)
-
-	// minimal bridge to make the network response `select`able
-	go withRecover(func() {
-		for set := range bridge {
-			request := set.buildRequest()
-
-			response, err := broker.Produce(request)
-
-			responses <- &brokerProducerResponse{
-				set: set,
-				err: err,
-				res: response,
-			}
-		}
-		close(responses)
-	})
-
-	if p.conf.Producer.Retry.Max <= 0 {
-		bp.abandoned = make(chan struct{})
-	}
-
-	return bp
-}
-```
-
-这里又启动了两个 goroutine，一个为 run，一个是匿名函数姑且称为 bridge。
-
-> bridge 看起来是真正的发送逻辑，那么 batch handle 逻辑应该是在 run 方法里了。
-
-这里先分析 bridge 函数，run 在下一章分析。
-
-##### buildRequest
-
-buildRequest 方法主要是构建一个标准的 Kafka Request 消息。
-
-> 根据不同版本、是否配置压缩信息做了额外处理，这里先忽略，只看核心代码：
-
-```go
-func (ps *produceSet) buildRequest() *ProduceRequest {	
-	req := &ProduceRequest{
-		RequiredAcks: ps.parent.conf.Producer.RequiredAcks,
-		Timeout:      int32(ps.parent.conf.Producer.Timeout / time.Millisecond),
-	}
-	for topic, partitionSets := range ps.msgs {
-		for partition, set := range partitionSets {
-				rb := set.recordsToSend.RecordBatch
-				if len(rb.Records) > 0 {
-					rb.LastOffsetDelta = int32(len(rb.Records) - 1)
-					for i, record := range rb.Records {
-						record.OffsetDelta = int64(i)
-					}
-				}
-				req.AddBatch(topic, partition, rb)
-				continue
-			}
-    }
-}
-```
-
-首先是构建一个 req 对象，然后遍历 ps.msg 中的消息，根据 topic 和 partition 分别写入到 req 中。
-
->  **Produce**
-
-```go
-func (b *Broker) Produce(request *ProduceRequest) (*ProduceResponse, error) {
-	var (
-		response *ProduceResponse
-		err      error
-	)
-
-	if request.RequiredAcks == NoResponse {
-		err = b.sendAndReceive(request, nil)
-	} else {
-		response = new(ProduceResponse)
-		err = b.sendAndReceive(request, response)
-	}
-
-	if err != nil {
-		return nil, err
-	}
-
-	return response, nil
-}
-```
-
-最终调用了`sendAndReceive()`方法将消息发送出去。
-
-如果我们设置了需要 Acks，就会传一个 response 进去接收返回值；如果没设置，那么消息发出去之后，就不管了。
-
-```go
-func (b *Broker) sendAndReceive(req protocolBody, res protocolBody) error {
-    
-	promise, err := b.send(req, res != nil, responseHeaderVersion)
-	if err != nil {
-		return err
-	}
-	select {
-	case buf := <-promise.packets:
-		return versionedDecode(buf, res, req.version())
-	case err = <-promise.errors:
-		return err
-	}
-}
-```
-
-最终通过`bytes, err := b.write(buf)` 发送出去。
-
-```go
-func (b *Broker) write(buf []byte) (n int, err error) {
-	if err := b.conn.SetWriteDeadline(time.Now().Add(b.conf.Net.WriteTimeout)); err != nil {
-		return 0, err
-	}
-	// 这里就是 net 包中的逻辑了。。
-	return b.conn.Write(buf)
-}
-```
-
-至此，`Sarama`生产者相关的内容就介绍完毕了。
-
-> 还有一个比较重要的，消息打包批量发送的逻辑，比较多再下一章讲。
-
-#### 消息打包源码分析
-
-在之前 BrokerProducer 逻辑中启动了两个 goroutine，其中 bridge 从 chan 中取消息并真正发送出去。
-
-*那么这个 chan 里的消息是哪里来的呢?*
-
-其实这就是另一个 goroutine 的工作了。
-
-```go
-func (p *asyncProducer) newBrokerProducer(broker *Broker) *brokerProducer {
-	var (
-		input     = make(chan *ProducerMessage)
-		bridge    = make(chan *produceSet)
-		responses = make(chan *brokerProducerResponse)
-	)
-
-	bp := &brokerProducer{
-		parent:         p,
-		broker:         broker,
-		input:          input,
-		output:         bridge,
-		responses:      responses,
-		stopchan:       make(chan struct{}),
-		buffer:         newProduceSet(p),
-		currentRetries: make(map[string]map[int32]error),
-	}
-	go withRecover(bp.run)
-
-	// minimal bridge to make the network response `select`able
-	go withRecover(func() {
-		for set := range bridge {
-			request := set.buildRequest()
-
-			response, err := broker.Produce(request)
-
-			responses <- &brokerProducerResponse{
-				set: set,
-				err: err,
-				res: response,
-			}
-		}
-		close(responses)
-	})
-
-	if p.conf.Producer.Retry.Max <= 0 {
-		bp.abandoned = make(chan struct{})
-	}
-
-	return bp
-}
-```
-
-##### run
-
-```go
-func (bp *brokerProducer) run() {
-	var output chan<- *produceSet
-
-	for {
-		select {
-		case msg, ok := <-bp.input:
-            // 1. 检查 buffer 空间是否足够存放当前 msg
-			if bp.buffer.wouldOverflow(msg) {
-				if err := bp.waitForSpace(msg, false); err != nil {
-					bp.parent.retryMessage(msg, err)
-					continue
-				}
-			}
-			// 2. 将 msg 存入 buffer
-			if err := bp.buffer.add(msg); err != nil {
-				bp.parent.returnError(msg, err)
-				continue
-			}
-            // 3. 如果间隔时间到了，也会将消息发出去
-		case <-bp.timer:
-			bp.timerFired = true
-            // 4. 将 buffer 里的数据发送到 局部变量 output chan 里
-		case output <- bp.buffer:
-			bp.rollOver()
-		case response, ok := <-bp.responses:
-			if ok {
-				bp.handleResponse(response)
-			}
-		} 
-		// 5.如果发送时间到了 或者消息大小或者条数达到阈值 则表示可以发送了 将  bp.output chan 赋值给局部变量 output
-		if bp.timerFired || bp.buffer.readyToFlush() {
-			output = bp.output
-		} else {
-			output = nil
-		}
-	}
-}
-```
-
-- 1）首先检测 buffer 空间
-- 2）将 msg 写入 buffer
-- 3）后面的 3 4 5 步都是在发送消息，或者为发送消息做准备
-
-##### wouldOverflow
-
-```go
-if bp.buffer.wouldOverflow(msg) {
-    if err := bp.waitForSpace(msg, false); err != nil {
-        bp.parent.retryMessage(msg, err)
-        continue
-    }
-}
-```
-
-在 add 之前先调用`bp.buffer.wouldOverflow(msg)` 方法检查 buffer 是否存在足够空间以存放当前消息。
-
-wouldOverflow 比较简单，就是判断当前消息大小或者消息数量是否超过设定值：
-
-```go
-func (ps *produceSet) wouldOverflow(msg *ProducerMessage) bool {
-	switch {
-	case ps.bufferBytes+msg.byteSize(version) >= int(MaxRequestSize-(10*1024)):
-		return true
-	case ps.msgs[msg.Topic] != nil && ps.msgs[msg.Topic][msg.Partition] != nil &&
-		ps.msgs[msg.Topic][msg.Partition].bufferBytes+msg.byteSize(version) >= ps.parent.conf.Producer.MaxMessageBytes:
-		return true
-	case ps.parent.conf.Producer.Flush.MaxMessages > 0 && ps.bufferCount >= ps.parent.conf.Producer.Flush.MaxMessages:
-		return true
-	default:
-		return false
-	}
-}
-```
-
-如果不够就要调用`bp.waitForSpace()` 等待 buffer 腾出空间，其实就是把 buffer 里的消息发到 output chan。
-
-> 这个 output chan 就是前面匿名函数里的 bridge。
-
-```go
-func (bp *brokerProducer) waitForSpace(msg *ProducerMessage, forceRollover bool) error {
-	for {
-		select {
-		case response := <-bp.responses:
-			bp.handleResponse(response)
-			if reason := bp.needsRetry(msg); reason != nil {
-				return reason
-			} else if !bp.buffer.wouldOverflow(msg) && !forceRollover {
-				return nil
-			}
-		case bp.output <- bp.buffer:
-			bp.rollOver()
-			return nil
-		}
-	}
-}
-```
-
-##### add
-
-接下来是调用`bp.buffer.add()`把消息添加到 buffer，功能比较简单，把待发送的消息添加到 buffer 中。
-
-```go
-func (ps *produceSet) add(msg *ProducerMessage) error {
-		// 1.消息编码
-		key, err = msg.Key.Encode()
-		val, err = msg.Value.Encode()
-		// 2.添加消息到 set.msgs 数组
-		set.msgs = append(set.msgs, msg)
-		// 3.添加到set.recordsToSend
-		msgToSend := &Message{Codec: CompressionNone, Key: key, Value: val}
-		if ps.parent.conf.Version.IsAtLeast(V0_10_0_0) {
-			msgToSend.Timestamp = timestamp
-			msgToSend.Version = 1
-		}
-		set.recordsToSend.MsgSet.addMessage(msgToSend)
-		// 4. 增加 buffer 大小和 buffer 中的消息条数
-		ps.bufferBytes += size
-		ps.bufferCount++
-}
-```
-
-`set.recordsToSend.MsgSet.addMessage`也很简单：
-
-```go
-func (ms *MessageSet) addMessage(msg *Message) {
-	block := new(MessageBlock)
-	block.Msg = msg
-	ms.Messages = append(ms.Messages, block)
-}
-```
-
-##### 定时发送
-
-因为异步发送者除了消息数或者消息大小达到阈值会触发一次发送之外，到了一定时间也会触发一次发送，具体逻辑也在这个 run 方法里，这个地方比较有意思。
-
-```go
-func (bp *brokerProducer) run() {
-	var output chan<- *produceSet
-	for {
-		select {
-		case msg, ok := <-bp.input:
-        // 1.时间到了就将 bp.timerFired 设置为 true
-		case <-bp.timer:
-			 bp.timerFired = true
-        // 3.直接把 buffer 里的消息往局部变量 output 里发
-		case output <- bp.buffer:
-			bp.rollOver()
-		}
-		// 2.如果时间到了，或者 buffer 里的消息达到阈值后都会触发真正的发送逻辑，这里实现比较有意思，需要发送的时候就把 bp.output 也就是存放真正需要发送的批量消息的 chan 赋值给局部变量 output，如果不需要发送就把局部变量 output 清空
-		if bp.timerFired || bp.buffer.readyToFlush() {
-			output = bp.output
-		} else {
-			output = nil
-		}
-	}
-}
-```
-
-根据注释中的 1、2、3步骤看来，如果第二步需要发送就会给 output 赋值，这样下一轮 select 的时候`case output <- bp.buffer:` 这个 case 就可能会执行到，就会把消息发给 output，实际上就是发送给了 bp.output.
-
-如果第二步时不需要发消息，output 就被置空，select 时对应的 case 就不会被执行。
-
-> 正常写法一般是在启动一个 goroutine 来处理定时发送的功能，但是这样两个 goroutine 之间就会存在竞争，会影响性能。这样处理省去了加解锁过程，性能会高一些，但是随之而来的是代码复杂度的提升。
-
-
-
-**Consumer**
+### ConsumerDemo
 
 ```go
 /*
@@ -931,6 +360,772 @@ func ConsumerGroup(topic, group, name string) {
 	wg.Wait()
 }
 ```
+
+
+
+### 发送流程源码分析
+
+> 为了便于阅读，省略了部分无关代码。
+>
+> 另外：由于同步生产者和异步生产者逻辑是一致的，只是在异步生产者基础上封装了一层，所以本文主要分析了异步生产者。
+
+```go
+// 可以看到 同步生产者其实就是把异步生产者封装了一层
+type syncProducer struct {
+    producer *asyncProducer
+    wg       sync.WaitGroup
+}
+```
+
+#### NewAsyncProducer
+
+首先是构建一个异步生产者对象
+
+```go
+func NewAsyncProducer(addrs []string, conf *Config) (AsyncProducer, error) {
+	client, err := NewClient(addrs, conf)
+	if err != nil {
+		return nil, err
+	}
+	return newAsyncProducer(client)
+}
+
+func newAsyncProducer(client Client) (AsyncProducer, error) {
+	// ...
+	p := &asyncProducer{
+		client:     client,
+		conf:       client.Config(),
+		errors:     make(chan *ProducerError),
+		input:      make(chan *ProducerMessage),
+		successes:  make(chan *ProducerMessage),
+		retries:    make(chan *ProducerMessage),
+		brokers:    make(map[*Broker]*brokerProducer),
+		brokerRefs: make(map[*brokerProducer]int),
+		txnmgr:     txnmgr,
+	}
+
+	go withRecover(p.dispatcher)
+	go withRecover(p.retryHandler)
+}
+```
+
+可以看到在 `newAsyncProducer` 最后开启了两个 goroutine，一个为 `dispatcher`，一个为 `retryHandler`。retryHandler 主要是处理重试逻辑，暂时先忽略。
+
+#### dispatcher
+
+主要根据 `topic` 将消息分发到对应的 channel。
+
+```go
+func (p *asyncProducer) dispatcher() {
+   handlers := make(map[string]chan<- *ProducerMessage)
+   // ...
+   for msg := range p.input {
+       
+	  // 拦截器逻辑
+      for _, interceptor := range p.conf.Producer.Interceptors {
+         msg.safelyApplyInterceptor(interceptor)
+      }
+	  // 找到这个Topic对应的Handler
+      handler := handlers[msg.Topic]
+      if handler == nil {
+         // 如果没有这个Topic对应的Handler，那么创建一个
+         handler = p.newTopicProducer(msg.Topic)
+         handlers[msg.Topic] = handler
+      }
+	  // 然后把这条消息写进这个Handler中
+      handler <- msg
+   }
+}
+```
+
+具体逻辑：从 `p.input` 中取出消息并写入到 `handler` 中，如果 `topic` 对应的 `handler` 不存在，则调用 `newTopicProducer()` 创建。
+
+> 这里的 handler 是一个 buffered channel
+
+然后让我们来看下`handler = p.newTopicProducer(msg.Topic)`这一行的代码。
+
+```go
+func (p *asyncProducer) newTopicProducer(topic string) chan<- *ProducerMessage {
+   input := make(chan *ProducerMessage, p.conf.ChannelBufferSize)
+   tp := &topicProducer{
+      parent:      p,
+      topic:       topic,
+      input:       input,
+      breaker:     breaker.New(3, 1, 10*time.Second),
+      handlers:    make(map[int32]chan<- *ProducerMessage),
+      partitioner: p.conf.Producer.Partitioner(topic),
+   }
+   go withRecover(tp.dispatch)
+   return input
+}
+```
+
+在这里创建了一个缓冲大小为`ChannelBufferSize`的channel，用于存放发送到这个主题的消息，然后创建了一个 `topicProducer`。
+
+> 在这个时候你可以认为消息已经交付给各个 topic 对应的 topicProducer 了。
+
+#### topicDispatch
+
+`newTopicProducer`的最后一行`go withRecover(tp.dispatch)`又启动了一个 goroutine 用于处理消息。也就是说，到了这一步，对于每一个Topic，都有一个协程来处理消息。
+
+dispatch 具体如下：
+
+```go
+func (tp *topicProducer) dispatch() {
+	for msg := range tp.input {
+		handler := tp.handlers[msg.Partition]
+		if handler == nil {
+			handler = tp.parent.newPartitionProducer(msg.Topic, msg.Partition)
+			tp.handlers[msg.Partition] = handler
+		}
+
+		handler <- msg
+	}
+}
+```
+
+可以看到又是同样的套路：
+
+- 1）找到这条消息所在的分区对应的 channel，然后把消息丢进去
+- 2）如果不存在则新建 chan
+
+#### PartitionProducer
+
+新建的 chan 是通过 `newPartitionProducer` 返回的，和之前的`newTopicProducer`又是同样的套路,点进去看一下：
+
+```go
+func (p *asyncProducer) newPartitionProducer(topic string, partition int32) chan<- *ProducerMessage {
+	input := make(chan *ProducerMessage, p.conf.ChannelBufferSize)
+	pp := &partitionProducer{
+		parent:    p,
+		topic:     topic,
+		partition: partition,
+		input:     input,
+
+		breaker:    breaker.New(3, 1, 10*time.Second),
+		retryState: make([]partitionRetryState, p.conf.Producer.Retry.Max+1),
+	}
+	go withRecover(pp.dispatch)
+	return input
+}
+```
+
+> 果然是这样，有没有一种似曾相识的感觉。
+
+`TopicProducer`是按照 `Topic` 进行分发，这里的 `PartitionProducer` 则是按照 `partition` 进行分发。
+
+> 到这里可以认为消息已经交付给对应 topic 下的对应 partition 了。
+
+每个 partition 都会有一个 goroutine 来处理分发给自己的消息。
+
+#### PartitionDispatch
+
+到了这一步，我们再来看看消息到了每个 partition 所在的 channel 之后，是如何处理的。
+
+> 其实在这一步中，主要是做一些错误处理之类的，然后把消息丢进brokerProducer。
+
+可以理解为这一步是业务逻辑层到网络IO层的转变，在这之前我们只关心消息去到了哪个分区，而在这之后，我们需要找到这个分区所在的 broker 的地址，并使用之前已经建立好的 TCP 连接，发送这条消息。
+
+具体 `pp.dispatch` 代码如下
+
+```go
+func (pp *partitionProducer) dispatch() {
+	// 找到这个主题和分区的leader所在的broker
+	pp.leader, _ = pp.parent.client.Leader(pp.topic, pp.partition)
+	if pp.leader != nil {
+        // 根据 leader 信息创建一个 BrokerProducer 对象
+		pp.brokerProducer = pp.parent.getBrokerProducer(pp.leader)
+		pp.parent.inFlight.Add(1) 
+		pp.brokerProducer.input <- &ProducerMessage{Topic: pp.topic, Partition: pp.partition, flags: syn}
+	}
+	// 然后把消息丢进brokerProducer中
+	for msg := range pp.input {
+		pp.brokerProducer.input <- msg
+	}
+}
+```
+
+> 根据之前的套路我们知道，真正的逻辑肯定在`pp.parent.getBrokerProducer(pp.leader)` 这个方法里面。
+
+#### BrokerProducer
+
+到了这里，大概算是整个发送流程最后的一个步骤了。
+
+让我们继续跟进`pp.parent.getBrokerProducer(pp.leader)`这行代码里面的内容。其实就是找到`asyncProducer`中的`brokerProducer`，如果不存在，则创建一个。
+
+```go
+func (p *asyncProducer) getBrokerProducer(broker *Broker) *brokerProducer {
+	p.brokerLock.Lock()
+	defer p.brokerLock.Unlock()
+
+	bp := p.brokers[broker]
+
+	if bp == nil {
+		bp = p.newBrokerProducer(broker)
+		p.brokers[broker] = bp
+		p.brokerRefs[bp] = 0
+	}
+
+	p.brokerRefs[bp]++
+
+	return bp
+}
+```
+
+又调用了`newBrokerProducer()`，继续追踪下去：
+
+```go
+func (p *asyncProducer) newBrokerProducer(broker *Broker) *brokerProducer {
+	var (
+		input     = make(chan *ProducerMessage)
+		bridge    = make(chan *produceSet)
+		responses = make(chan *brokerProducerResponse)
+	)
+
+	bp := &brokerProducer{
+		parent:         p,
+		broker:         broker,
+		input:          input,
+		output:         bridge,
+		responses:      responses,
+		stopchan:       make(chan struct{}),
+		buffer:         newProduceSet(p),
+		currentRetries: make(map[string]map[int32]error),
+	}
+	go withRecover(bp.run)
+
+	// minimal bridge to make the network response `select`able
+	go withRecover(func() {
+		for set := range bridge {
+			request := set.buildRequest()
+
+			response, err := broker.Produce(request)
+
+			responses <- &brokerProducerResponse{
+				set: set,
+				err: err,
+				res: response,
+			}
+		}
+		close(responses)
+	})
+
+	if p.conf.Producer.Retry.Max <= 0 {
+		bp.abandoned = make(chan struct{})
+	}
+
+	return bp
+}
+```
+
+这里又启动了两个 goroutine，一个为 run，一个是匿名函数姑且称为 bridge。
+
+> bridge 看起来是真正的发送逻辑，那么 batch handle 逻辑应该是在 run 方法里了。
+
+这里先分析 bridge 函数，run 在下一章分析。
+
+#### buildRequest
+
+buildRequest 方法主要是构建一个标准的 Kafka Request 消息。
+
+> 根据不同版本、是否配置压缩信息做了额外处理，这里先忽略，只看核心代码：
+
+```go
+func (ps *produceSet) buildRequest() *ProduceRequest {	
+	req := &ProduceRequest{
+		RequiredAcks: ps.parent.conf.Producer.RequiredAcks,
+		Timeout:      int32(ps.parent.conf.Producer.Timeout / time.Millisecond),
+	}
+	for topic, partitionSets := range ps.msgs {
+		for partition, set := range partitionSets {
+				rb := set.recordsToSend.RecordBatch
+				if len(rb.Records) > 0 {
+					rb.LastOffsetDelta = int32(len(rb.Records) - 1)
+					for i, record := range rb.Records {
+						record.OffsetDelta = int64(i)
+					}
+				}
+				req.AddBatch(topic, partition, rb)
+				continue
+			}
+    }
+}
+```
+
+首先是构建一个 req 对象，然后遍历 ps.msg 中的消息，根据 topic 和 partition 分别写入到 req 中。
+
+#### Produce
+
+```go
+func (b *Broker) Produce(request *ProduceRequest) (*ProduceResponse, error) {
+	var (
+		response *ProduceResponse
+		err      error
+	)
+
+	if request.RequiredAcks == NoResponse {
+		err = b.sendAndReceive(request, nil)
+	} else {
+		response = new(ProduceResponse)
+		err = b.sendAndReceive(request, response)
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	return response, nil
+}
+```
+
+最终调用了`sendAndReceive()`方法将消息发送出去。
+
+如果我们设置了需要 Acks，就会传一个 response 进去接收返回值；如果没设置，那么消息发出去之后，就不管了。
+
+```go
+func (b *Broker) sendAndReceive(req protocolBody, res protocolBody) error {
+    
+	promise, err := b.send(req, res != nil, responseHeaderVersion)
+	if err != nil {
+		return err
+	}
+	select {
+	case buf := <-promise.packets:
+		return versionedDecode(buf, res, req.version())
+	case err = <-promise.errors:
+		return err
+	}
+}
+```
+
+最终通过`bytes, err := b.write(buf)` 发送出去。
+
+```go
+func (b *Broker) write(buf []byte) (n int, err error) {
+	if err := b.conn.SetWriteDeadline(time.Now().Add(b.conf.Net.WriteTimeout)); err != nil {
+		return 0, err
+	}
+	// 这里就是 net 包中的逻辑了。。
+	return b.conn.Write(buf)
+}
+```
+
+至此，`Sarama`生产者相关的内容就介绍完毕了。
+
+> 还有一个比较重要的，消息打包批量发送的逻辑
+
+### 消息打包源码分析
+
+在之前 BrokerProducer 逻辑中启动了两个 goroutine，其中 bridge 从 chan 中取消息并真正发送出去。
+
+*那么这个 chan 里的消息是哪里来的呢?*
+
+其实这就是另一个 goroutine 的工作了。
+
+```go
+func (p *asyncProducer) newBrokerProducer(broker *Broker) *brokerProducer {
+	var (
+		input     = make(chan *ProducerMessage)
+		bridge    = make(chan *produceSet)
+		responses = make(chan *brokerProducerResponse)
+	)
+
+	bp := &brokerProducer{
+		parent:         p,
+		broker:         broker,
+		input:          input,
+		output:         bridge,
+		responses:      responses,
+		stopchan:       make(chan struct{}),
+		buffer:         newProduceSet(p),
+		currentRetries: make(map[string]map[int32]error),
+	}
+	go withRecover(bp.run)
+
+	// minimal bridge to make the network response `select`able
+	go withRecover(func() {
+		for set := range bridge {
+			request := set.buildRequest()
+
+			response, err := broker.Produce(request)
+
+			responses <- &brokerProducerResponse{
+				set: set,
+				err: err,
+				res: response,
+			}
+		}
+		close(responses)
+	})
+
+	if p.conf.Producer.Retry.Max <= 0 {
+		bp.abandoned = make(chan struct{})
+	}
+
+	return bp
+}
+```
+
+#### run
+
+```go
+func (bp *brokerProducer) run() {
+	var output chan<- *produceSet
+
+	for {
+		select {
+		case msg, ok := <-bp.input:
+            // 1. 检查 buffer 空间是否足够存放当前 msg
+			if bp.buffer.wouldOverflow(msg) {
+				if err := bp.waitForSpace(msg, false); err != nil {
+					bp.parent.retryMessage(msg, err)
+					continue
+				}
+			}
+			// 2. 将 msg 存入 buffer
+			if err := bp.buffer.add(msg); err != nil {
+				bp.parent.returnError(msg, err)
+				continue
+			}
+            // 3. 如果间隔时间到了，也会将消息发出去
+		case <-bp.timer:
+			bp.timerFired = true
+            // 4. 将 buffer 里的数据发送到 局部变量 output chan 里
+		case output <- bp.buffer:
+			bp.rollOver()
+		case response, ok := <-bp.responses:
+			if ok {
+				bp.handleResponse(response)
+			}
+		} 
+		// 5.如果发送时间到了 或者消息大小或者条数达到阈值 则表示可以发送了 将  bp.output chan 赋值给局部变量 output
+		if bp.timerFired || bp.buffer.readyToFlush() {
+			output = bp.output
+		} else {
+			output = nil
+		}
+	}
+}
+```
+
+- 1）首先检测 buffer 空间
+- 2）将 msg 写入 buffer
+- 3）后面的 3 4 5 步都是在发送消息，或者为发送消息做准备
+
+#### wouldOverflow
+
+```go
+if bp.buffer.wouldOverflow(msg) {
+    if err := bp.waitForSpace(msg, false); err != nil {
+        bp.parent.retryMessage(msg, err)
+        continue
+    }
+}
+```
+
+在 add 之前先调用`bp.buffer.wouldOverflow(msg)` 方法检查 buffer 是否存在足够空间以存放当前消息。
+
+wouldOverflow 比较简单，就是判断当前消息大小或者消息数量是否超过设定值：
+
+```go
+func (ps *produceSet) wouldOverflow(msg *ProducerMessage) bool {
+	switch {
+	case ps.bufferBytes+msg.byteSize(version) >= int(MaxRequestSize-(10*1024)):
+		return true
+	case ps.msgs[msg.Topic] != nil && ps.msgs[msg.Topic][msg.Partition] != nil &&
+		ps.msgs[msg.Topic][msg.Partition].bufferBytes+msg.byteSize(version) >= ps.parent.conf.Producer.MaxMessageBytes:
+		return true
+	case ps.parent.conf.Producer.Flush.MaxMessages > 0 && ps.bufferCount >= ps.parent.conf.Producer.Flush.MaxMessages:
+		return true
+	default:
+		return false
+	}
+}
+```
+
+如果不够就要调用`bp.waitForSpace()` 等待 buffer 腾出空间，其实就是把 buffer 里的消息发到 output chan。
+
+> 这个 output chan 就是前面匿名函数里的 bridge。
+
+```go
+func (bp *brokerProducer) waitForSpace(msg *ProducerMessage, forceRollover bool) error {
+	for {
+		select {
+		case response := <-bp.responses:
+			bp.handleResponse(response)
+			if reason := bp.needsRetry(msg); reason != nil {
+				return reason
+			} else if !bp.buffer.wouldOverflow(msg) && !forceRollover {
+				return nil
+			}
+		case bp.output <- bp.buffer:
+			bp.rollOver()
+			return nil
+		}
+	}
+}
+```
+
+#### add
+
+接下来是调用`bp.buffer.add()`把消息添加到 buffer，功能比较简单，把待发送的消息添加到 buffer 中。
+
+```go
+func (ps *produceSet) add(msg *ProducerMessage) error {
+		// 1.消息编码
+		key, err = msg.Key.Encode()
+		val, err = msg.Value.Encode()
+		// 2.添加消息到 set.msgs 数组
+		set.msgs = append(set.msgs, msg)
+		// 3.添加到set.recordsToSend
+		msgToSend := &Message{Codec: CompressionNone, Key: key, Value: val}
+		if ps.parent.conf.Version.IsAtLeast(V0_10_0_0) {
+			msgToSend.Timestamp = timestamp
+			msgToSend.Version = 1
+		}
+		set.recordsToSend.MsgSet.addMessage(msgToSend)
+		// 4. 增加 buffer 大小和 buffer 中的消息条数
+		ps.bufferBytes += size
+		ps.bufferCount++
+}
+```
+
+`set.recordsToSend.MsgSet.addMessage`也很简单：
+
+```go
+func (ms *MessageSet) addMessage(msg *Message) {
+	block := new(MessageBlock)
+	block.Msg = msg
+	ms.Messages = append(ms.Messages, block)
+}
+```
+
+#### 定时发送
+
+因为异步发送者除了消息数或者消息大小达到阈值会触发一次发送之外，到了一定时间也会触发一次发送，具体逻辑也在这个 run 方法里，这个地方比较有意思。
+
+```go
+func (bp *brokerProducer) run() {
+	var output chan<- *produceSet
+	for {
+		select {
+		case msg, ok := <-bp.input:
+        // 1.时间到了就将 bp.timerFired 设置为 true
+		case <-bp.timer:
+			 bp.timerFired = true
+        // 3.直接把 buffer 里的消息往局部变量 output 里发
+		case output <- bp.buffer:
+			bp.rollOver()
+		}
+		// 2.如果时间到了，或者 buffer 里的消息达到阈值后都会触发真正的发送逻辑，这里实现比较有意思，需要发送的时候就把 bp.output 也就是存放真正需要发送的批量消息的 chan 赋值给局部变量 output，如果不需要发送就把局部变量 output 清空
+		if bp.timerFired || bp.buffer.readyToFlush() {
+			output = bp.output
+		} else {
+			output = nil
+		}
+	}
+}
+```
+
+根据注释中的 1、2、3步骤看来，如果第二步需要发送就会给 output 赋值，这样下一轮 select 的时候`case output <- bp.buffer:` 这个 case 就可能会执行到，就会把消息发给 output，实际上就是发送给了 bp.output.
+
+如果第二步时不需要发消息，output 就被置空，select 时对应的 case 就不会被执行。
+
+> 正常写法一般是在启动一个 goroutine 来处理定时发送的功能，但是这样两个 goroutine 之间就会存在竞争，会影响性能。这样处理省去了加解锁过程，性能会高一些，但是随之而来的是代码复杂度的提升。
+
+## 九、生产者分区机制原理剖析
+
+> Kafka 有主题（Topic）的概念，它是承载真实数据的逻辑容器，而在主题之下还分为若干个分区，也就是说 Kafka 的消息组织方式实际上是三级结构：**主题 - 分区 - 消息**。
+
+### 分区策略
+
+> Kafka 为我们提供了默认的分区策略，同时它也支持你自定义分区策略。
+
+#### 轮询策略
+
+![](image/partiton-1.png)
+
+> **轮询策略有非常优秀的负载均衡表现，它总是能保证消息最大限度地被平均分配到所有分区上，故默认情况下它是最合理的分区策略，也是我们最常用的分区策略之一。**
+
+#### 随机策略
+
+也称 Randomness 策略。所谓随机就是我们随意地将消息放置到任意一个分区上，如下面这张图所示。
+
+![](image/partition-2.png)
+
+> 从实际表现来看，它要逊于轮询策略，所以**如果追求数据的均匀分布，还是使用轮询策略比较好**。
+
+#### 按消息键保序策略
+
+也称 Key-ordering 策略。
+
+Kafka 允许为每条消息定义消息键，简称为 Key。这个 Key 的作用非常大，它可以是一个有着明确业务含义的字符串，比如客户代码、部门编号或是业务 ID 等；也可以用来表征消息元数据。
+
+特别是在 Kafka 不支持时间戳的年代，在一些场景中，工程师们都是直接将消息创建时间封装进 Key 里面的。一旦消息被定义了 Key，那么你就可以保证同一个 Key 的所有消息都进入到相同的分区里面，由于每个分区下的消息处理都是有顺序的，故这个策略被称为按消息键保序策略，如下图所示。
+
+![](image/partition-3.png)
+
+> 前面提到的 Kafka 默认分区策略实际上同时实现了两种策略：如果指定了 Key，那么默认实现按消息键保序策略；如果没有指定 Key，则使用轮询策略。
+
+#### golang自定义分区策略
+
+```go
+type Config struct {
+    	Producer struct {
+			Partitioner PartitionerConstructor
+        }
+}
+```
+
+可以看到 Config.Producer 里有一个 Partitioner 的参数，这就是分区策略配置项。
+
+类型为 PartitionerConstructor，分区构造器，具体如下：
+
+```go
+type PartitionerConstructor func(topic string) Partitioner
+```
+
+这是一个 构造方法，该方法返回的 Partitioner 才是正在的 分区器。
+
+```go
+type Partitioner interface {
+
+	Partition(message *ProducerMessage, numPartitions int32) (int32, error)
+
+	RequiresConsistency() bool
+}
+
+```
+
+要定义自定义分区策略只需要实现该接口即可。
+
+```go
+type myPartitioner struct {
+	partition int32
+}
+// Partition 返回的是分区的位置或者索引，并不是具体的分区号。比如有十个分区[0,1，2,3...9] 这里返回 0 表示取数组中的第0个位置的分区。在 Go 客户端中是这样实现的，具体见下文源码分析
+func (p *myPartitioner) Partition(message *sarama.ProducerMessage, numPartitions int32) (int32, error) {
+	if p.partition >= numPartitions {
+		p.partition = 0
+	}
+	ret := p.partition
+	p.partition++
+	return ret, nil
+}
+// 该方法的作用在下文源码分析中有详细解释
+func (p *myPartitioner) RequiresConsistency() bool {
+	return false
+}
+
+```
+
+然后在实现一个构造方法即可
+
+```go
+func NewMyPartitioner(topic string) sarama.Partitioner {
+	return &myPartitioner{}
+}
+```
+
+最后构造生产者时指定自定义的 分区策略
+
+```go
+	config := sarama.NewConfig()
+	config.Producer.Partitioner = NewMyPartitioner // 这个就是我们自定义 Partitioner 的构造方法
+
+```
+
+## 十、如何避免消息丢失
+
+### 概述
+
+>在使用 MQ 的时候最大的问题就是消息丢失，常见的丢失情况如下：
+>
+>- 1）Producer 端丢失
+>- 2）Broker 端丢失
+>- 3）Consumer 端丢失
+>
+>一条消息从生产到消费一共要经过以下 3 个流程：
+>
+>- 1）Producer 发送到 Broker
+>- 2）Broker 保存消息(持久化)
+>- 3）Consumer 消费消息
+>
+>3 个步骤分别对应了上述的 3 种消息丢失场景。
+
+### Kafka 消息持久化保障
+
+> **一句话概括，Kafka 只对“已提交”的消息（committed message）做有限度的持久化保证。**
+
+第一个核心要素是**已提交的消息**。
+
+> 什么是已提交的消息？当 Kafka 的若干个 Broker 成功地接收到一条消息并写入到日志文件后，它们会告诉生产者程序这条消息已成功提交。此时，这条消息在 Kafka 看来就正式变为“已提交”消息了。
+>
+> 那为什么是若干个 Broker 呢？这取决于你对“已提交”的定义。你可以选择只要有一个 Broker 成功保存该消息就算是已提交，也可以是令所有 Broker 都成功保存该消息才算是已提交。不论哪种情况，Kafka 只对已提交的消息做持久化保证这件事情是不变的。
+
+第二个核心要素就是**有限度的持久化保证**。
+
+> 有限度其实就是说 Kafka 不丢消息是有前提条件的。假如你的消息保存在 N 个 Kafka Broker 上，那么这个前提条件就是这 N 个 Broker 中至少有 1 个存活。只要这个条件成立，Kafka 就能保证你的这条消息永远不会丢失。
+
+### Producer端丢失
+
+Producer 端丢消息更多是因为**消息根本没有提交到 Kafka**。
+
+目前 Kafka Producer 是异步发送消息的，也就是说如果你调用的是 producer.send(msg) 这个 API，那么它通常会立即返回，但此时你不能认为消息发送已成功完成。
+
+>解决方案也很简单：**Producer 永远要使用带有回调通知的发送 API，也就是说不要使用 producer.send(msg)，而要使用 producer.send(msg, callback)**。
+
+通过回调，一旦出现消息提交失败的情况，你就可以有针对性地进行处理。
+
+举例来说：
+
+- 如果是因为那些瞬时错误，那么仅仅让 Producer 重试就可以了；
+- 如果是消息不合格造成的，那么可以调整消息格式后再次发送。
+
+### Broker端丢失
+
+Broker 丢失消息是由 Kafka 自身原因造成的。Kafka 为了提高吞吐量和性能，采用**异步批量的刷盘策略**，也就是按照一定的消息量和间隔时间进行刷盘。
+
+> Broker 端丢失消息才真的是因为 Kafka 造成的。
+
+Kafka 收到消息后会先存储在也缓存中(Page Cache)中，之后由操作系统根据自己的策略进行刷盘或者通过 fsync 命令强制刷盘。如果系统挂掉，在 PageCache 中的数据就会丢失。
+
+建议根据实际情况设置：
+
+- 如果要严格保证消息不丢失，请设置为 all 或 -1；
+- 如果允许存在丢失，建议设置为 1；
+- 一般不建议设为 0，除非无所谓消息丢不丢失。
+
+### Consumer端丢失
+
+**Consumer 端丢失数据主要体现在 Consumer 端要消费的消息不见了。**
+
+出现该情况的唯一原因就是：**Consumer 没有正确消费消息，就把位移提交了，导致 Kafka 认为该消息已经被消费了，从而导致消息丢失**。
+
+> 场景1：获取到消息后直接提交位移了，然后再处理消息。这样在提交位移后，处理完消息前，如果程序挂掉，这部分消息就算是丢失了。
+>
+> 场景2：多线程并发消费消息，且开启了自动提交，导致消费完成之前程序就自动提交了位移，如果程序挂掉也会出现消息丢失。
+
+解决方案也很简单：**确定消费完成后才提交消息，如果是多线程异步处理消费消息，Consumer 程序不要开启自动提交位移，而是要应用程序手动提交位移**。
+
+**避免 Producer 端丢失**
+
+- 1）不要使用 producer.send(msg)，而要使用 producer.send(msg, callback)。记住，一定要使用带有回调通知的 send 方法。
+- 2）设置 retries 为一个较大的值。这里的 retries 同样是 Producer 的参数，对应前面提到的 Producer 自动重试。当出现网络的瞬时抖动时，消息发送可能会失败，此时配置了 retries > 0 的 Producer 能够自动重试消息发送，避免消息丢失。
+
+**避免 Broker 端丢失**
+
+- 3）设置 acks = all。acks 是 Producer 的一个参数，代表了你对“已提交”消息的定义。如果设置成 all，则表明所有副本 Broker 都要接收到消息，该消息才算是“已提交”。这是最高等级的“已提交”定义。
+- 4）设置 unclean.leader.election.enable = false。这是 Broker 端的参数，它控制的是哪些 Broker 有资格竞选分区的 Leader。如果一个 Broker 落后原先的 Leader 太多，那么它一旦成为新的 Leader，必然会造成消息的丢失。故一般都要将该参数设置成 false，即不允许这种情况的发生。
+- 5）设置 replication.factor >= 3。这也是 Broker 端的参数。其实这里想表述的是，最好将消息多保存几份，毕竟目前防止消息丢失的主要机制就是冗余。
+- 6）设置 min.insync.replicas > 1。这依然是 Broker 端参数，控制的是消息至少要被写入到多少个副本才算是“已提交”。设置成大于 1 可以提升消息持久性。在实际环境中千万不要使用默认值 1。
+- 7）确保 replication.factor > min.insync.replicas。如果两者相等，那么只要有一个副本挂机，整个分区就无法正常工作了。我们不仅要改善消息的持久性，防止数据丢失，还要在不降低可用性的基础上完成。推荐设置成 replication.factor = min.insync.replicas + 1。
+
+**避免 Consumer 端丢失**
+
+- 8）确保消息消费完成再提交。Consumer 端有个参数 enable.auto.commit，最好把它设置成 false，并采用手动提交位移的方式。就像前面说的，这对于单 Consumer 多线程处理的场景而言是至关重要的。
+
+
 
 
 
